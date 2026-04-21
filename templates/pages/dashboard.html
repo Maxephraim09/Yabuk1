@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Yubek Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="{% static 'css/dashboard-style.css' %}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f3f6fb;
+            --panel: rgba(255, 255, 255, 0.9);
+            --panel-strong: #ffffff;
+            --sidebar: #081220;
+            --sidebar-2: #0d1c33;
+            --text: #102033;
+            --muted: #6b7a90;
+            --line: rgba(16, 32, 51, 0.08);
+            --accent: #23c6b8;
+            --accent-2: #5b8def;
+            --accent-3: #f6c85f;
+            --accent-4: #ff7f50;
+            --shadow: 0 18px 45px rgba(8, 18, 32, 0.09);
+        }
+
+        * { box-sizing: border-box; }
+
+        body.dashboard-body {
+            margin: 0;
+            font-family: "Manrope", system-ui, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(91, 141, 239, 0.12), transparent 34%),
+                radial-gradient(circle at right center, rgba(35, 198, 184, 0.10), transparent 28%),
+                linear-gradient(180deg, #f9fbff 0%, #edf2f8 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .dashboard-shell {
+            display: grid;
+            grid-template-columns: 290px minmax(0, 1fr);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 24px 18px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)),
+                linear-gradient(180deg, var(--sidebar) 0%, var(--sidebar-2) 100%);
+            color: rgba(255,255,255,0.88);
+            border-right: 1px solid rgba(255,255,255,0.06);
+            box-shadow: inset -1px 0 0 rgba(255,255,255,0.04);
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .brand-mark {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--accent) 0%, #78d7ff 100%);
+            color: #05202d;
+            box-shadow: 0 10px 24px rgba(35, 198, 184, 0.25);
+            font-size: 1.05rem;
+        }
+
+        .brand-copy h1,
+        .brand-copy p,
+        .section-label,
+        .sidebar-link,
+        .sidebar-note,
+        .sidebar-mini {
+            margin: 0;
+        }
+
+        .brand-copy h1 {
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            color: #fff;
+        }
+
+        .brand-copy p {
+            font-size: 0.83rem;
+            color: rgba(255, 255, 255, 0.68);
+        }
+
+        .sidebar-block {
+            margin-top: 26px;
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.45);
+            margin-bottom: 12px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.84);
+            padding: 13px 14px;
+            border-radius: 16px;
+            transition: all 0.18s ease;
+            border: 1px solid transparent;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(35, 198, 184, 0.18), rgba(91, 141, 239, 0.18));
+            border-color: rgba(255, 255, 255, 0.08);
+            transform: translateX(3px);
+        }
+
+        .sidebar-link i {
+            width: 18px;
+            text-align: center;
+            color: var(--accent);
+        }
+
+        .sidebar-note {
+            margin-left: auto;
+            font-size: 0.73rem;
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        .sidebar-card {
+            margin-top: 18px;
+            border-radius: 22px;
+            padding: 18px;
+            background: linear-gradient(145deg, rgba(35,198,184,0.12), rgba(91,141,239,0.12));
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-mini {
+            font-size: 0.86rem;
+            color: rgba(255,255,255,0.66);
+        }
+
+        .sidebar-stat {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .sidebar-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            color: #071220;
+            background: linear-gradient(135deg, var(--accent) 0%, #78d7ff 100%);
+            padding: 11px 14px;
+            border-radius: 14px;
+            margin-top: 14px;
+        }
+
+        .content {
+            padding: 24px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 18px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .searchbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            max-width: 520px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: #f6f9fe;
+            border: 1px solid rgba(16, 32, 51, 0.06);
+        }
+
+        .searchbar input {
+            border: 0;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-chip,
+        .action-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--text);
+        }
+
+        .icon-chip {
+            width: 46px;
+            height: 46px;
+            box-shadow: 0 10px 24px rgba(8, 18, 32, 0.05);
+        }
+
+        .action-chip {
+            padding: 12px 16px;
+            gap: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            cursor: pointer;
+            appearance: none;
+            font: inherit;
+        }
+
+        .action-chip:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 25px rgba(8, 18, 32, 0.08);
+            color: var(--text);
+        }
+
+        .hero {
+            margin-top: 22px;
+            padding: 26px;
+            border-radius: 28px;
+            color: #fff;
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 32%),
+                linear-gradient(135deg, #0d1c33 0%, #10203b 52%, #15355f 100%);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: auto -5% -40% auto;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(35,198,184,0.34) 0%, rgba(35,198,184,0) 70%);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 18px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 10px;
+        }
+
+        .hero h2 {
+            font-size: clamp(1.9rem, 3vw, 3rem);
+            font-weight: 800;
+            line-height: 1.06;
+            margin: 0 0 10px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.78);
+            font-size: 0.98rem;
+            max-width: 62ch;
+            margin-bottom: 0;
+        }
+
+        .hero-panel {
+            padding: 18px;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-panel .metric {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .hero-panel .metric:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .metric strong {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .metric span {
+            color: rgba(255,255,255,0.66);
+            font-size: 0.9rem;
+        }
+
+        .metric small {
+            color: rgba(255,255,255,0.52);
+            font-size: 0.76rem;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .panel-title {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .panel-subtitle {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            padding: 18px;
+            border-radius: 22px;
+            background: var(--panel-strong);
+            border: 1px solid rgba(16, 32, 51, 0.06);
+            box-shadow: 0 12px 30px rgba(8, 18, 32, 0.06);
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -18px -18px auto;
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(35,198,184,0.14), rgba(35,198,184,0));
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .stat-value {
+            margin-top: 8px;
+            font-size: 1.75rem;
+            line-height: 1;
+            font-weight: 800;
+        }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            background: rgba(35,198,184,0.12);
+            color: #0d6b63;
+        }
+
+        .stat-card.accent-blue .stat-chip { background: rgba(91,141,239,0.12); color: #2f58b5; }
+        .stat-card.accent-amber .stat-chip { background: rgba(246,200,95,0.22); color: #947000; }
+        .stat-card.accent-coral .stat-chip { background: rgba(255,127,80,0.14); color: #bf4f28; }
+
+        .mini-progress {
+            margin-top: 16px;
+            height: 9px;
+            border-radius: 999px;
+            background: #edf2f7;
+            overflow: hidden;
+        }
+
+        .mini-progress > span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
+        }
+
+        .management-section {
+            margin-top: 22px;
+            scroll-margin-top: 22px;
+        }
+
+        .management-links {
+            display: grid;
+            gap: 10px;
+        }
+
+        .management-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 15px;
+            border-radius: 18px;
+            text-decoration: none;
+            color: var(--text);
+            border: 1px solid rgba(16, 32, 51, 0.06);
+            background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .management-link:hover {
+            transform: translateY(-1px);
+            border-color: rgba(35,198,184,0.35);
+            box-shadow: 0 14px 24px rgba(8, 18, 32, 0.08);
+            color: var(--text);
+        }
+
+        .management-link strong {
+            display: block;
+            font-size: 0.98rem;
+            font-weight: 800;
+        }
+
+        .management-link small {
+            display: block;
+            color: var(--muted);
+            margin-top: 2px;
+            font-size: 0.8rem;
+        }
+
+        .management-link i.page-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: #0d1c33;
+            background: linear-gradient(135deg, rgba(35,198,184,0.2), rgba(91,141,239,0.14));
+        }
+
+        .badge-soft {
+            padding: 8px 11px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #0d1c33;
+            background: rgba(35,198,184,0.15);
+        }
+
+        .timeline {
+            display: grid;
+            gap: 12px;
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr);
+            gap: 12px;
+            align-items: start;
+            padding: 14px;
+            border-radius: 18px;
+            background: #fff;
+            border: 1px solid rgba(16,32,51,0.06);
+        }
+
+        .timeline-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, rgba(91,141,239,0.18), rgba(35,198,184,0.18));
+            color: #164a8c;
+        }
+
+        .timeline-item h5 {
+            margin: 0;
+            font-size: 0.96rem;
+            font-weight: 800;
+        }
+
+        .timeline-item p {
+            margin: 6px 0 8px;
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+
+        .timeline-item .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .table-panel table {
+            margin-bottom: 0;
+        }
+
+        .table-panel thead th {
+            border-bottom: 1px solid rgba(16,32,51,0.08);
+            color: var(--muted);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .table-panel tbody td {
+            vertical-align: middle;
+            border-color: rgba(16,32,51,0.06);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        .status-live {
+            background: rgba(35,198,184,0.14);
+            color: #0b746c;
+        }
+
+        .status-draft {
+            background: rgba(91,141,239,0.14);
+            color: #2c55af;
+        }
+
+        .status-muted {
+            background: rgba(16,32,51,0.06);
+            color: var(--muted);
+        }
+
+        .menu-toggle {
+            display: none;
+        }
+
+        .message-empty,
+        .posts-empty {
+            border: 1px dashed rgba(16,32,51,0.18);
+            border-radius: 18px;
+            padding: 18px;
+            color: var(--muted);
+            background: rgba(255,255,255,0.65);
+        }
+
+        .back-to-top {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent) 0%, #78d7ff 100%);
+            color: #071220;
+            box-shadow: 0 16px 30px rgba(8, 18, 32, 0.18);
+            border: 0;
+            text-decoration: none;
+            z-index: 50;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 34px rgba(8, 18, 32, 0.22);
+            color: #071220;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-shell,
+            .hero-grid,
+            .section-grid,
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                height: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 14px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .top-actions {
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .searchbar {
+                max-width: none;
+            }
+
+            .hero {
+                padding: 20px;
+            }
+
+            .back-to-top {
+                right: 16px;
+                bottom: 16px;
+                width: 46px;
+                height: 46px;
+                border-radius: 14px;
+            }
+        }
+    </style>
+</head>
+<body class="dashboard-body" id="top">
+    <div class="dashboard-shell">
+        <aside class="sidebar">
+            <div class="brand-badge">
+                <div class="brand-mark"><i class="fa-solid fa-water"></i></div>
+                <div class="brand-copy">
+                    <h1>Yubek Table Water</h1>
+                    <p>DattaAble-inspired dashboard</p>
+                </div>
+            </div>
+
+            <div class="sidebar-block">
+                <div class="section-label">Navigation</div>
+                {% for item in admin_menu %}
+                <a class="sidebar-link{% if item.key == active_section %} active{% endif %}" href="{{ item.url }}">
+                    <i class="fa-solid {{ item.icon }}"></i>
+                    <span>{{ item.label }}</span>
+                    <span class="sidebar-note">{{ item.note }}</span>
+                </a>
+                {% endfor %}
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-mini">Unread messages</div>
+                <div class="sidebar-stat">{{ unread_message_count }}</div>
+                <p class="sidebar-mini mt-2">Keep an eye on fresh inquiries and website feedback.</p>
+                <a class="sidebar-cta" href="#messages">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    Jump to inbox
+                </a>
+            </div>
+        </aside>
+
+        <main class="content">
+            <header class="topbar">
+                <div class="searchbar">
+                    <i class="fa-solid fa-magnifying-glass text-secondary"></i>
+                    <input type="text" value="" placeholder="Search management sections" aria-label="Search dashboard">
+                </div>
+                <div class="top-actions">
+                    <a href="{% url 'index' %}" class="action-chip">
+                        <i class="fa-solid fa-globe"></i>
+                        Open site
+                    </a>
+                    <a href="{% url 'blog' %}" class="action-chip">
+                        <i class="fa-solid fa-book-open"></i>
+                        Open blog
+                    </a>
+                    <span class="badge-soft">{{ request.user.username|default:"Admin" }}</span>
+                    <form method="post" action="{% url 'logout' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="action-chip" style="cursor: pointer;">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            Logout
+                        </button>
+                    </form>
+                    <div class="icon-chip">
+                        <i class="fa-regular fa-bell"></i>
+                    </div>
+                </div>
+            </header>
+
+            <section class="hero">
+                <div class="hero-grid">
+                    <div>
+                        <div class="eyebrow">
+                            <i class="fa-solid fa-signal"></i>
+                            Admin overview
+                        </div>
+                        <h2>Clean, focused control center for the Yubek site.</h2>
+                        <p>
+                            Track posts, messages, and management links from one place. The layout keeps the DattaAble
+                            rhythm of a dark sidebar, bright content cards, and fast glanceable summaries.
+                        </p>
+                    </div>
+                    <div class="hero-panel">
+                        <div class="metric">
+                            <div>
+                                <span>Published posts</span>
+                                <small>Ready for the blog feed</small>
+                            </div>
+                            <strong>{{ published_post_count }}</strong>
+                        </div>
+                        <div class="metric">
+                            <div>
+                                <span>Draft posts</span>
+                                <small>Waiting for review</small>
+                            </div>
+                            <strong>{{ draft_post_count }}</strong>
+                        </div>
+                        <div class="metric">
+                            <div>
+                                <span>Total messages</span>
+                                <small>All contact submissions</small>
+                            </div>
+                            <strong>{{ message_count }}</strong>
+                        </div>
+                        <div class="metric">
+                            <div>
+                                <span>Media assets</span>
+                                <small>Active / total</small>
+                            </div>
+                            <strong>{{ active_image_count }}/{{ image_count }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stat-grid">
+                <article class="stat-card accent-blue">
+                    <div class="stat-top">
+                        <div>
+                            <div class="stat-label">Blog posts</div>
+                            <div class="stat-value">{{ blog_count }}</div>
+                        </div>
+                        <div class="stat-chip"><i class="fa-solid fa-pen-nib"></i> Content</div>
+                    </div>
+                    <div class="mini-progress"><span style="width: 82%;"></span></div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <div>
+                            <div class="stat-label">Published</div>
+                            <div class="stat-value">{{ published_post_count }}</div>
+                        </div>
+                        <div class="stat-chip"><i class="fa-solid fa-check"></i> Live</div>
+                    </div>
+                    <div class="mini-progress"><span style="width: 71%;"></span></div>
+                </article>
+                <article class="stat-card accent-amber">
+                    <div class="stat-top">
+                        <div>
+                            <div class="stat-label">Unread messages</div>
+                            <div class="stat-value">{{ unread_message_count }}</div>
+                        </div>
+                        <div class="stat-chip"><i class="fa-solid fa-envelope"></i> Inbox</div>
+                    </div>
+                    <div class="mini-progress"><span style="width: 44%;"></span></div>
+                </article>
+                <article class="stat-card accent-coral">
+                    <div class="stat-top">
+                        <div>
+                            <div class="stat-label">Media assets</div>
+                            <div class="stat-value">{{ active_image_count }}</div>
+                        </div>
+                        <div class="stat-chip"><i class="fa-solid fa-image"></i> Gallery</div>
+                    </div>
+                    <div class="mini-progress"><span style="width: 60%;"></span></div>
+                </article>
+            </section>
+
+            <section class="section-grid">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Content Sections</h3>
+                            <p class="panel-subtitle">Jump directly into the area you want to manage.</p>
+                        </div>
+                        <span class="badge-soft">{{ admin_menu|length|add:"-1" }} sections</span>
+                    </div>
+                    <div class="management-links">
+                        {% for item in admin_menu %}
+                        {% if item.key != 'dashboard' %}
+                        <a class="management-link" href="{{ item.url }}">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="page-icon fa-solid {{ item.icon }}"></i>
+                                <div>
+                                    <strong>{{ item.label }}</strong>
+                                    <small>{{ item.note }}</small>
+                                </div>
+                            </div>
+                            <span class="badge-soft">
+                                {% if item.key == 'frontend' %}
+                                    {{ frontend_count }} snippets
+                                {% elif item.key == 'about' %}
+                                    {{ about_count }} snippets
+                                {% elif item.key == 'services' %}
+                                    {{ service_count }} snippets
+                                {% elif item.key == 'blog' %}
+                                    {{ blog_count }} posts
+                                {% elif item.key == 'products' %}
+                                    {{ product_count }} items
+                                {% elif item.key == 'gallery' %}
+                                    {{ gallery_count }} images
+                                {% elif item.key == 'messages' %}
+                                    {{ message_count }} messages
+                                {% endif %}
+                            </span>
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Admin Snapshot</h3>
+                            <p class="panel-subtitle">A quick read on the areas you manage most often.</p>
+                        </div>
+                    </div>
+
+                    <div class="section-stack">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Frontend snippets</span>
+                            <span class="text-secondary">{{ frontend_count }} items</span>
+                        </div>
+                        <div class="mini-progress"><span style="width: 72%;"></span></div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">About content</span>
+                            <span class="text-secondary">{{ about_count }} items</span>
+                        </div>
+                        <div class="mini-progress"><span style="width: 58%;"></span></div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Services content</span>
+                            <span class="text-secondary">{{ service_count }} items</span>
+                        </div>
+                        <div class="mini-progress"><span style="width: 64%;"></span></div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Blog posts</span>
+                            <span class="text-secondary">{{ blog_count }} entries</span>
+                        </div>
+                        <div class="mini-progress"><span style="width: 80%;"></span></div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Products</span>
+                            <span class="text-secondary">{{ product_count }} items</span>
+                        </div>
+                        <div class="mini-progress"><span style="width: 67%;"></span></div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Gallery images</span>
+                            <span class="text-secondary">{{ gallery_count }} items</span>
+                        </div>
+                        <div class="mini-progress"><span style="width: 76%;"></span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-grid">
+                <div class="panel table-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Recent Blog Posts</h3>
+                            <p class="panel-subtitle">The latest items surfaced in the public blog.</p>
+                        </div>
+                    </div>
+
+                    {% if blog_posts %}
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for post in blog_posts|slice:":5" %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ post.title }}</div>
+                                        <div class="text-secondary small">{{ post.excerpt|default:"No excerpt yet." }}</div>
+                                    </td>
+                                    <td>{{ post.category|default:"Blog" }}</td>
+                                    <td>{{ post.published_at|date:'M d, Y' }}</td>
+                                    <td>
+                                        {% if post.is_published %}
+                                            <span class="status-pill status-live"><i class="fa-solid fa-circle"></i> Published</span>
+                                        {% else %}
+                                            <span class="status-pill status-draft"><i class="fa-solid fa-pen"></i> Draft</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="posts-empty">No blog posts found yet.</div>
+                    {% endif %}
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Recent Messages</h3>
+                            <p class="panel-subtitle">Fast visibility into incoming inquiries.</p>
+                        </div>
+                    </div>
+
+                    {% if recent_messages %}
+                    <div class="timeline">
+                        {% for message in recent_messages|slice:":5" %}
+                        <article class="timeline-item">
+                            <div class="timeline-avatar">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div>
+                                <h5>{{ message.name }}</h5>
+                                <p>{{ message.subject }}</p>
+                                <div class="meta">
+                                    <span><i class="fa-solid fa-envelope me-1"></i>{{ message.email }}</span>
+                                    <span><i class="fa-regular fa-clock me-1"></i>{{ message.created_at|date:'M d, H:i' }}</span>
+                                    {% if message.is_read %}
+                                        <span class="status-pill status-muted">Read</span>
+                                    {% else %}
+                                        <span class="status-pill status-live">Unread</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="message-empty">No contact messages have arrived yet.</div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section id="frontend" class="management-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Home / Frontend</h3>
+                            <p class="panel-subtitle">Manage homepage copy and featured images without leaving the dashboard.</p>
+                        </div>
+                        <span class="badge-soft">{{ frontend_count }} items</span>
+                    </div>
+                </div>
+                <div class="section-grid">
+                    <div class="panel">
+                        <h3>Text Blocks</h3>
+                        <p class="subtitle">Edit the homepage snippets shown on the public site.</p>
+                        <div class="section-stack">
+                            {% for snippet in frontend_snippets %}
+                            <form method="post" action="{% url 'update_snippet' snippet.id %}" class="border rounded-4 p-3 bg-light">
+                                {% csrf_token %}
+                                <input type="hidden" name="group" value="Home">
+                                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                    <div>
+                                        <div class="fw-bold">{{ snippet.label }}</div>
+                                        <div class="text-secondary small">{{ snippet.key }}</div>
+                                    </div>
+                                    <span class="badge-soft">{% if snippet.is_active %}Active{% else %}Inactive{% endif %}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Label</label>
+                                    <input type="text" name="label" class="form-control" value="{{ snippet.label }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Value</label>
+                                    <textarea name="value" class="form-control" rows="4">{{ snippet.value }}</textarea>
+                                </div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{ snippet.sort_order }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="home-snippet-active-{{ snippet.id }}" {% if snippet.is_active %}checked{% endif %}>
+                                            <label class="form-check-label" for="home-snippet-active-{{ snippet.id }}">Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                            <i class="fa-solid fa-floppy-disk me-2"></i>Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            {% empty %}
+                            <div class="empty-state">No homepage snippets have been added yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Featured Images</h3>
+                        <p class="subtitle">Update the images shown in the homepage sections.</p>
+                        <div class="section-stack">
+                            {% for image in frontend_images %}
+                            <form method="post" action="{% url 'update_site_image' image.id %}" enctype="multipart/form-data" class="border rounded-4 p-3 bg-light">
+                                {% csrf_token %}
+                                <input type="hidden" name="group" value="Home">
+                                <div class="d-flex gap-3 mb-3">
+                                    {% if image.image %}
+                                        <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" class="thumb">
+                                    {% else %}
+                                        <div class="thumb d-flex align-items-center justify-content-center text-secondary">No image</div>
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">{{ image.label }}</div>
+                                        <div class="text-secondary small">{{ image.key }}</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Label</label>
+                                    <input type="text" name="label" class="form-control" value="{{ image.label }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Alt Text</label>
+                                    <input type="text" name="alt_text" class="form-control" value="{{ image.alt_text }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Image</label>
+                                    <input type="file" name="image" class="form-control">
+                                </div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{ image.sort_order }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="home-image-active-{{ image.id }}" {% if image.is_active %}checked{% endif %}>
+                                            <label class="form-check-label" for="home-image-active-{{ image.id }}">Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                            <i class="fa-solid fa-floppy-disk me-2"></i>Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            {% empty %}
+                            <div class="empty-state">No homepage images have been added yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" class="management-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">About</h3>
+                            <p class="panel-subtitle">Update the About page story and featured image from here.</p>
+                        </div>
+                        <span class="badge-soft">{{ about_count }} items</span>
+                    </div>
+                </div>
+                <div class="section-grid">
+                    <div class="panel">
+                        <h3>Text Blocks</h3>
+                        <p class="subtitle">Edit the About page copy.</p>
+                        <div class="section-stack">
+                            {% for snippet in about_snippets %}
+                            <form method="post" action="{% url 'update_snippet' snippet.id %}" class="border rounded-4 p-3 bg-light">
+                                {% csrf_token %}
+                                <input type="hidden" name="group" value="About">
+                                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                    <div>
+                                        <div class="fw-bold">{{ snippet.label }}</div>
+                                        <div class="text-secondary small">{{ snippet.key }}</div>
+                                    </div>
+                                    <span class="badge-soft">{% if snippet.is_active %}Active{% else %}Inactive{% endif %}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Label</label>
+                                    <input type="text" name="label" class="form-control" value="{{ snippet.label }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Value</label>
+                                    <textarea name="value" class="form-control" rows="4">{{ snippet.value }}</textarea>
+                                </div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{ snippet.sort_order }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="about-snippet-active-{{ snippet.id }}" {% if snippet.is_active %}checked{% endif %}>
+                                            <label class="form-check-label" for="about-snippet-active-{{ snippet.id }}">Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                            <i class="fa-solid fa-floppy-disk me-2"></i>Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            {% empty %}
+                            <div class="empty-state">No About snippets have been added yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Featured Image</h3>
+                        <p class="subtitle">Update the image associated with the About page.</p>
+                        <div class="section-stack">
+                            {% for image in about_images %}
+                            <form method="post" action="{% url 'update_site_image' image.id %}" enctype="multipart/form-data" class="border rounded-4 p-3 bg-light">
+                                {% csrf_token %}
+                                <input type="hidden" name="group" value="About">
+                                <div class="d-flex gap-3 mb-3">
+                                    {% if image.image %}
+                                        <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" class="thumb">
+                                    {% else %}
+                                        <div class="thumb d-flex align-items-center justify-content-center text-secondary">No image</div>
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">{{ image.label }}</div>
+                                        <div class="text-secondary small">{{ image.key }}</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Label</label>
+                                    <input type="text" name="label" class="form-control" value="{{ image.label }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Alt Text</label>
+                                    <input type="text" name="alt_text" class="form-control" value="{{ image.alt_text }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Image</label>
+                                    <input type="file" name="image" class="form-control">
+                                </div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{ image.sort_order }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="about-image-active-{{ image.id }}" {% if image.is_active %}checked{% endif %}>
+                                            <label class="form-check-label" for="about-image-active-{{ image.id }}">Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                            <i class="fa-solid fa-floppy-disk me-2"></i>Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            {% empty %}
+                            <div class="empty-state">No About images have been added yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="services" class="management-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Services</h3>
+                            <p class="panel-subtitle">Edit the services page content and its supporting image.</p>
+                        </div>
+                        <span class="badge-soft">{{ service_count }} items</span>
+                    </div>
+                </div>
+                <div class="section-grid">
+                    <div class="panel">
+                        <h3>Text Blocks</h3>
+                        <p class="subtitle">Update service descriptions and headings.</p>
+                        <div class="section-stack">
+                            {% for snippet in service_snippets %}
+                            <form method="post" action="{% url 'update_snippet' snippet.id %}" class="border rounded-4 p-3 bg-light">
+                                {% csrf_token %}
+                                <input type="hidden" name="group" value="Services">
+                                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                    <div>
+                                        <div class="fw-bold">{{ snippet.label }}</div>
+                                        <div class="text-secondary small">{{ snippet.key }}</div>
+                                    </div>
+                                    <span class="badge-soft">{% if snippet.is_active %}Active{% else %}Inactive{% endif %}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Label</label>
+                                    <input type="text" name="label" class="form-control" value="{{ snippet.label }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Value</label>
+                                    <textarea name="value" class="form-control" rows="4">{{ snippet.value }}</textarea>
+                                </div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{ snippet.sort_order }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="services-snippet-active-{{ snippet.id }}" {% if snippet.is_active %}checked{% endif %}>
+                                            <label class="form-check-label" for="services-snippet-active-{{ snippet.id }}">Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                            <i class="fa-solid fa-floppy-disk me-2"></i>Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            {% empty %}
+                            <div class="empty-state">No Services snippets have been added yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Featured Image</h3>
+                        <p class="subtitle">Update the hero image used on the Services page.</p>
+                        <div class="section-stack">
+                            {% for image in service_images %}
+                            <form method="post" action="{% url 'update_site_image' image.id %}" enctype="multipart/form-data" class="border rounded-4 p-3 bg-light">
+                                {% csrf_token %}
+                                <input type="hidden" name="group" value="Services">
+                                <div class="d-flex gap-3 mb-3">
+                                    {% if image.image %}
+                                        <img src="{{ image.image.url }}" alt="{{ image.alt_text }}" class="thumb">
+                                    {% else %}
+                                        <div class="thumb d-flex align-items-center justify-content-center text-secondary">No image</div>
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">{{ image.label }}</div>
+                                        <div class="text-secondary small">{{ image.key }}</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Label</label>
+                                    <input type="text" name="label" class="form-control" value="{{ image.label }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Alt Text</label>
+                                    <input type="text" name="alt_text" class="form-control" value="{{ image.alt_text }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Image</label>
+                                    <input type="file" name="image" class="form-control">
+                                </div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{ image.sort_order }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="services-image-active-{{ image.id }}" {% if image.is_active %}checked{% endif %}>
+                                            <label class="form-check-label" for="services-image-active-{{ image.id }}">Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                            <i class="fa-solid fa-floppy-disk me-2"></i>Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            {% empty %}
+                            <div class="empty-state">No Services images have been added yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="blog" class="management-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Blog</h3>
+                            <p class="panel-subtitle">Add, edit, publish, or delete posts right from the dashboard.</p>
+                        </div>
+                        <span class="badge-soft">{{ blog_count }} posts</span>
+                    </div>
+                </div>
+                <div class="section-grid">
+                    <div class="panel">
+                        <h3>Add New Post</h3>
+                        <p class="subtitle">Create a new blog entry.</p>
+                        <form method="post" action="{% url 'create_blog_post' %}" enctype="multipart/form-data" class="border rounded-4 p-3 bg-light">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input type="text" name="title" class="form-control" placeholder="Post title">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <input type="text" name="category" class="form-control" placeholder="Post category">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Excerpt</label>
+                                <textarea name="excerpt" class="form-control" rows="3" placeholder="Short summary"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Content</label>
+                                <textarea name="content" class="form-control" rows="8" placeholder="Full blog content"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Image</label>
+                                <input type="file" name="image" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Image Path</label>
+                                <input type="text" name="image_path" class="form-control" value="img/blog-1.jpg">
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label">Sort Order</label>
+                                    <input type="number" name="sort_order" class="form-control" value="0">
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check mt-4">
+                                        <input class="form-check-input" type="checkbox" name="is_published" id="blog-published-new" checked>
+                                        <label class="form-check-label" for="blog-published-new">Published</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                        <i class="fa-solid fa-plus me-2"></i>Create Post
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="panel">
+                        <h3>All Posts</h3>
+                        <p class="subtitle">Edit or remove existing blog posts.</p>
+                        <div class="section-stack">
+                            {% for post in blog_posts %}
+                            <form method="post" action="{% url 'update_blog_post' post.id %}" enctype="multipart/form-data" class="border rounded-4 p-3 bg-light">
+                                {% csrf_token %}
+                                <div class="d-flex flex-wrap justify-content-between gap-3 align-items-start mb-3">
+                                    <div>
+                                        <div class="fw-bold">{{ post.title }}</div>
+                                        <div class="text-secondary small">{{ post.category|default:"Blog" }} · {{ post.published_at|date:'M d, Y' }}</div>
+                                    </div>
+                                    {% if post.is_published %}
+                                        <span class="badge-soft">Published</span>
+                                    {% else %}
+                                        <span class="badge-soft" style="background: rgba(91,141,239,0.12); color: #2c55af;">Draft</span>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Title</label>
+                                    <input type="text" name="title" class="form-control" value="{{ post.title }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Category</label>
+                                    <input type="text" name="category" class="form-control" value="{{ post.category }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Excerpt</label>
+                                    <textarea name="excerpt" class="form-control" rows="3">{{ post.excerpt }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Content</label>
+                                    <textarea name="content" class="form-control" rows="7">{{ post.content }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Image</label>
+                                    <input type="file" name="image" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Image Path</label>
+                                    <input type="text" name="image_path" class="form-control" value="{{ post.image_path|default:'img/blog-1.jpg' }}">
+                                </div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{ post.sort_order }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_published" id="blog-published-{{ post.id }}" {% if post.is_published %}checked{% endif %}>
+                                            <label class="form-check-label" for="blog-published-{{ post.id }}">Published</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4">
+                                                <i class="fa-solid fa-floppy-disk me-1"></i>Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <form method="post" action="{% url 'delete_blog_post' post.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Delete this blog post?');">
+                                    <i class="fa-solid fa-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                            {% empty %}
+                            <div class="empty-state">No blog posts have been created yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="products" class="management-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Products</h3>
+                            <p class="panel-subtitle">Add new product images and update existing product details here.</p>
+                        </div>
+                        <span class="badge-soft">{{ product_count }} items</span>
+                    </div>
+                </div>
+                <div class="section-grid">
+                    <div class="panel">
+                        <h3>Add New Product</h3>
+                        <p class="subtitle">Create a new product entry.</p>
+                        <form method="post" action="{% url 'product_create' %}" enctype="multipart/form-data" class="border rounded-4 p-3 bg-light">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Label</label>
+                                <input type="text" name="label" class="form-control" placeholder="Product label">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Alt Text</label>
+                                <input type="text" name="alt_text" class="form-control" placeholder="Image alt text">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Image</label>
+                                <input type="file" name="image" class="form-control">
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label">Sort Order</label>
+                                    <input type="number" name="sort_order" class="form-control" value="0">
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check mt-4">
+                                        <input class="form-check-input" type="checkbox" name="is_active" id="product-active-new" checked>
+                                        <label class="form-check-label" for="product-active-new">Active</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                        <i class="fa-solid fa-plus me-2"></i>Create Product
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Product List</h3>
+                        <p class="subtitle">Edit or delete existing products.</p>
+                        <div class="section-stack">
+                            {% for item in product_items %}
+                            <form method="post" action="{% url 'product_update' item.id %}" enctype="multipart/form-data" class="border rounded-4 p-3 bg-light">
+                                {% csrf_token %}
+                                <div class="d-flex gap-3 mb-3">
+                                    {% if item.image %}
+                                        <img src="{{ item.image.url }}" alt="{{ item.alt_text }}" class="thumb">
+                                    {% else %}
+                                        <div class="thumb d-flex align-items-center justify-content-center text-secondary">No image</div>
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">{{ item.label }}</div>
+                                        <div class="text-secondary small">{{ item.alt_text|default:"No alt text set" }}</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Label</label>
+                                    <input type="text" name="label" class="form-control" value="{{ item.label }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Alt Text</label>
+                                    <input type="text" name="alt_text" class="form-control" value="{{ item.alt_text }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Image</label>
+                                    <input type="file" name="image" class="form-control">
+                                </div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{ item.sort_order }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="product-active-{{ item.id }}" {% if item.is_active %}checked{% endif %}>
+                                            <label class="form-check-label" for="product-active-{{ item.id }}">Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4">
+                                                <i class="fa-solid fa-floppy-disk me-1"></i>Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <form method="post" action="{% url 'product_delete' item.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Delete this product?');">
+                                    <i class="fa-solid fa-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                            {% empty %}
+                            <div class="empty-state">No products have been added yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="gallery" class="management-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Gallery</h3>
+                            <p class="panel-subtitle">Add new gallery images and manage the current library.</p>
+                        </div>
+                        <span class="badge-soft">{{ gallery_count }} images</span>
+                    </div>
+                </div>
+                <div class="section-grid">
+                    <div class="panel">
+                        <h3>Add New Gallery Image</h3>
+                        <p class="subtitle">Create a new gallery entry.</p>
+                        <form method="post" action="{% url 'gallery_create' %}" enctype="multipart/form-data" class="border rounded-4 p-3 bg-light">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Label</label>
+                                <input type="text" name="label" class="form-control" placeholder="Gallery label">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Alt Text</label>
+                                <input type="text" name="alt_text" class="form-control" placeholder="Image alt text">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Image</label>
+                                <input type="file" name="image" class="form-control">
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label">Sort Order</label>
+                                    <input type="number" name="sort_order" class="form-control" value="0">
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check mt-4">
+                                        <input class="form-check-input" type="checkbox" name="is_active" id="gallery-active-new" checked>
+                                        <label class="form-check-label" for="gallery-active-new">Active</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                        <i class="fa-solid fa-plus me-2"></i>Add Image
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Gallery Images</h3>
+                        <p class="subtitle">Edit or delete existing gallery images.</p>
+                        <div class="section-stack">
+                            {% for item in gallery_items %}
+                            <form method="post" action="{% url 'gallery_update' item.id %}" enctype="multipart/form-data" class="border rounded-4 p-3 bg-light">
+                                {% csrf_token %}
+                                <div class="d-flex gap-3 mb-3">
+                                    {% if item.image %}
+                                        <img src="{{ item.image.url }}" alt="{{ item.alt_text }}" class="thumb">
+                                    {% else %}
+                                        <div class="thumb d-flex align-items-center justify-content-center text-secondary">No image</div>
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">{{ item.label }}</div>
+                                        <div class="text-secondary small">{{ item.alt_text|default:"No alt text set" }}</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Label</label>
+                                    <input type="text" name="label" class="form-control" value="{{ item.label }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Alt Text</label>
+                                    <input type="text" name="alt_text" class="form-control" value="{{ item.alt_text }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Image</label>
+                                    <input type="file" name="image" class="form-control">
+                                </div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Sort Order</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{ item.sort_order }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="gallery-active-{{ item.id }}" {% if item.is_active %}checked{% endif %}>
+                                            <label class="form-check-label" for="gallery-active-{{ item.id }}">Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4">
+                                                <i class="fa-solid fa-floppy-disk me-1"></i>Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <form method="post" action="{% url 'gallery_delete' item.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Delete this gallery image?');">
+                                    <i class="fa-solid fa-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                            {% empty %}
+                            <div class="empty-state">No gallery images have been added yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="messages" class="management-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Messages</h3>
+                            <p class="panel-subtitle">Review contact requests, mark them read, or delete them when processed.</p>
+                        </div>
+                        <span class="badge-soft">{{ message_count }} messages</span>
+                    </div>
+                </div>
+                <div class="panel table-panel">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Subject</th>
+                                    <th>Email</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for message in recent_messages %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ message.name }}</div>
+                                        <div class="small text-secondary">{{ message.phone|default:"No phone" }}</div>
+                                    </td>
+                                    <td>{{ message.subject }}</td>
+                                    <td>{{ message.email }}</td>
+                                    <td>{{ message.created_at|date:'M d, Y H:i' }}</td>
+                                    <td>
+                                        {% if message.is_read %}
+                                            <span class="badge-soft" style="background: rgba(91,141,239,0.12); color: #2c55af;">Read</span>
+                                        {% else %}
+                                            <span class="badge-soft">Unread</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-2">
+                                            <form method="post" action="{% url 'toggle_message_read' message.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill">
+                                                    {% if message.is_read %}Mark Unread{% else %}Mark Read{% endif %}
+                                                </button>
+                                            </form>
+                                            <form method="post" action="{% url 'delete_message' message.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Delete this message?');">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6" class="pt-0">
+                                        <div class="small text-secondary bg-white p-3 rounded-4 border">{{ message.message }}</div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">No messages have been received yet.</div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <a class="back-to-top" href="#top" aria-label="Back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

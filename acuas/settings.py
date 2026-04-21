@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv(
 # DEBUG OFF IN PRODUCTION
 DEBUG = False
 
-# ✅ FIXED ALLOWED HOSTS (Render + local dev)
+# Allowed hosts (Render + local)
 ALLOWED_HOSTS = [
     "yabuk1.onrender.com",
     "localhost",
@@ -36,7 +36,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # static files fix
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # IMPORTANT for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -65,7 +65,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'acuas.wsgi.application'
 
-# DATABASE (SQLite default, MySQL optional via env)
+# DATABASE CONFIG
 if os.getenv("DB_ENGINE", "sqlite3").lower() == "mysql":
     DATABASES = {
         'default': {
@@ -100,13 +100,21 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# STATIC FILES (Render production setup)
+# STATIC FILES (FIXED FOR PRODUCTION)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise compression (recommended)
+# WhiteNoise production storage (CRITICAL FIX)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# EXTRA STATIC FIX (prevents missing CSS issues)
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+WHITENOISE_USE_FINDERS = True
 
 # MEDIA FILES
 MEDIA_URL = '/media/'
@@ -117,7 +125,7 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# ✅ CRITICAL FIX: CSRF for Render domain
+# CSRF FIX FOR RENDER DOMAIN
 CSRF_TRUSTED_ORIGINS = [
     "https://yabuk1.onrender.com"
 ]
